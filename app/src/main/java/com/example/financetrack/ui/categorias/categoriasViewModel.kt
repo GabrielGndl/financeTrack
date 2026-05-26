@@ -1,18 +1,28 @@
 package com.example.financetrack.ui.categorias
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.example.financetrack.data.local.FinanceTrackDbHelper
+import com.example.financetrack.data.model.Category
+import com.example.financetrack.data.repository.TransactionRepository
 
-class CategoriasViewModel : ViewModel() {
+class CategoriasViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = TransactionRepository(FinanceTrackDbHelper(application))
 
-    // Función que la Vista llamará para guardar una nueva categoría
-    fun agregarCategoria(nombre: String, tipo: String) {
-        // TODO: Más adelante conectaremos esto a una nueva tabla en SQLite
-        // Por ahora, simulamos que procesamos la información
-        println("Nueva categoría registrada: $nombre de tipo $tipo")
+    private val _categoriasVisibles = MutableLiveData<List<Category>>()
+    val categoriasVisibles: LiveData<List<Category>> = _categoriasVisibles
+
+    fun cargarCategorias(esGasto: Boolean) {
+        val tipo = if (esGasto) "GASTO" else "INGRESO"
+        val lista = repository.getAllCategories().filter { it.tipo == tipo }
+        _categoriasVisibles.value = lista
     }
 
-    fun eliminarCategoria(nombre: String) {
-        // TODO: Lógica para eliminar de la base de datos
-        println("Categoría eliminada: $nombre")
+    fun agregarCategoria(nombre: String, tipo: String, colorHex: String, iconResId: Int) {
+        val nueva = Category(nombre = nombre, tipo = tipo, color = colorHex, icono = iconResId)
+        repository.insertCategory(nueva)
+        cargarCategorias(tipo == "GASTO")
     }
 }

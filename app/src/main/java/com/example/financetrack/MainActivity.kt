@@ -1,13 +1,11 @@
 package com.example.financetrack
-
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import com.example.financetrack.ui.categorias.CategoriasFragment
-import com.example.financetrack.ui.gastos.GastosFragment
-import com.example.financetrack.ui.ingresos.IngresosFragment
 import com.example.financetrack.ui.inicio.InicioFragment
+import com.example.financetrack.ui.transacciones.TransaccionesFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -27,20 +25,15 @@ class MainActivity : AppCompatActivity() {
             replaceFragment(InicioFragment())
             bottomNavigation.selectedItemId = R.id.nav_inicio
         }
-
-        // Configurar el "escuchador" de clics del menú inferior
+// Configurar el escuchador de clics del menú inferior
         bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_inicio -> {
                     replaceFragment(InicioFragment())
                     true
                 }
-                R.id.nav_gastos -> {
-                    replaceFragment(GastosFragment())
-                    true
-                }
-                R.id.nav_ingresos -> {
-                    replaceFragment(IngresosFragment())
+                R.id.nav_transacciones -> {
+                    replaceFragment(TransaccionesFragment())
                     true
                 }
                 R.id.nav_categorias -> {

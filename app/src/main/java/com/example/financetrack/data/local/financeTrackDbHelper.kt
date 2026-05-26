@@ -23,15 +23,38 @@ class FinanceTrackDbHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        // Sentencia SQL para crear la tabla
-        val createTableQuery = ("CREATE TABLE $TABLE_TRANSACTIONS ("
-                + "$COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "$COLUMN_AMOUNT REAL,"
-                + "$COLUMN_TYPE TEXT,"
-                + "$COLUMN_CATEGORY TEXT,"
-                + "$COLUMN_DATE TEXT,"
-                + "$COLUMN_DESCRIPTION TEXT)")
-        db.execSQL(createTableQuery)
+        // 1. La tabla que ya tenías para las transacciones
+        val createTransactionsTable = """
+            CREATE TABLE transactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                amount REAL,
+                type TEXT,
+                category TEXT,
+                date TEXT,
+                description TEXT
+            )
+        """.trimIndent()
+        db.execSQL(createTransactionsTable)
+
+// 2. LA NUEVA TABLA DE CATEGORÍAS (Actualizada con Color e Ícono)
+        val createCategoriesTable = """
+            CREATE TABLE categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT,
+                tipo TEXT,
+                color TEXT,
+                icono INTEGER
+            )
+        """.trimIndent()
+        db.execSQL(createCategoriesTable)
+
+        // 3. Insertar categorías por defecto con colores e íconos nativos
+        val iconGasto = android.R.drawable.ic_menu_agenda
+        val iconIngreso = android.R.drawable.ic_menu_add
+
+        db.execSQL("INSERT INTO categories (nombre, tipo, color, icono) VALUES ('Alimentación', 'GASTO', '#F44336', $iconGasto)")
+        db.execSQL("INSERT INTO categories (nombre, tipo, color, icono) VALUES ('Transporte', 'GASTO', '#2196F3', $iconGasto)")
+        db.execSQL("INSERT INTO categories (nombre, tipo, color, icono) VALUES ('Salario', 'INGRESO', '#4CAF50', $iconIngreso)")
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
