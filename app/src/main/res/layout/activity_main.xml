@@ -3,21 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"> <!-- ESTA ES LA LÍNEA QUE LO ARREGLA TODO -->
+    android:fitsSystemWindows="true"
+    android:background="#121212"> <FrameLayout
+    android:id="@+id/fragmentContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_above="@id/bottomNavigation"/>
 
-    <!-- Este es el contenedor donde se irán mostrando los distintos Fragments -->
-    <FrameLayout
-        android:id="@+id/fragmentContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottomNavigation"/>
-
-    <!-- Este es el menú de navegación inferior -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:background="#1E1E1E"
+        app:itemIconTint="@color/nav_icon_color"
+        app:itemTextColor="@color/nav_text_color"
+        app:itemActiveIndicatorStyle="@style/PildoraDorada"
         app:elevation="8dp"
         app:menu="@menu/bottom_nav_menu" />
 

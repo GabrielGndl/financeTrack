@@ -47,40 +47,42 @@
                 <com.google.android.material.chip.Chip android:id="@+id/chipAño" android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/Widget.MaterialComponents.Chip.Choice" android:text="Año"/>
             </com.google.android.material.chip.ChipGroup>
 
-        </HorizontalScrollView> <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:padding="8dp">
+        </HorizontalScrollView>
 
-        <ImageButton
-            android:id="@+id/btnFechaAnterior"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@android:drawable/ic_media_previous"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="#FFFFFF"/>
-
-        <TextView
-            android:id="@+id/tvFechaActual"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Cargando..."
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginHorizontal="16dp"
-            android:padding="8dp"/>
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="8dp">
 
-        <ImageButton
-            android:id="@+id/btnFechaSiguiente"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@android:drawable/ic_media_next"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="#FFFFFF"/>
-    </LinearLayout>
+            <ImageButton
+                android:id="@+id/btnFechaAnterior"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_media_previous"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#FFFFFF"/>
+
+            <TextView
+                android:id="@+id/tvFechaActual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cargando..."
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginHorizontal="16dp"
+                android:padding="8dp"/>
+
+            <ImageButton
+                android:id="@+id/btnFechaSiguiente"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_media_next"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#FFFFFF"/>
+        </LinearLayout>
 
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pieChart"
@@ -93,6 +95,41 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="8dp" />
+
+        <LinearLayout
+            android:id="@+id/layoutEmptyState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="32dp"
+            android:layout_marginTop="16dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@android:drawable/ic_menu_agenda"
+                app:tint="#333333"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sin movimientos"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Toca el botón + para registrar tu primer ingreso o gasto en este periodo."
+                android:textColor="#888888"
+                android:textSize="16sp"
+                android:textAlignment="center"/>
+        </LinearLayout>
 
     </LinearLayout>
 

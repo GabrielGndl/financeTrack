@@ -18,13 +18,13 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.tabs.TabLayout
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
+import com.example.financetrack.data.model.CategoriaDesglose
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class TransaccionesFragment : Fragment() {
     private lateinit var pieChart: PieChart
@@ -34,10 +34,13 @@ class TransaccionesFragment : Fragment() {
     private lateinit var viewModel: TransaccionesViewModel
     private lateinit var adapter: TransaccionesAdapter
 
-    // NUEVAS VISTAS
+    // VISTAS DEL NAVEGADOR
     private lateinit var tvFechaActual: TextView
     private lateinit var btnFechaAnterior: ImageButton
     private lateinit var btnFechaSiguiente: ImageButton
+
+    // Variable para guardar el total y restaurarlo
+    private var totalActual: Double = 0.0
 
     private var periodoSeleccionado = "Mes"
 
@@ -59,6 +62,8 @@ class TransaccionesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[TransaccionesViewModel::class.java]
+
+        setupPieChart()
 
         adapter = TransaccionesAdapter(emptyList()) { transaccion -> mostrarOpcionesTransaccion(transaccion) }
         rvDesglose.layoutManager = LinearLayoutManager(requireContext())
@@ -82,7 +87,7 @@ class TransaccionesFragment : Fragment() {
             aplicarFiltros()
         }
 
-        // NUEVO: Flechas de navegación y Calendario
+        // Flechas de navegación y Calendario
         btnFechaAnterior.setOnClickListener {
             viewModel.cambiarFecha(-1, periodoSeleccionado, tabLayout.selectedTabPosition == 0)
         }
@@ -97,7 +102,22 @@ class TransaccionesFragment : Fragment() {
 
         // Observadores
         viewModel.datosGrafico.observe(viewLifecycleOwner) { desglose -> actualizarGrafico(desglose) }
-        viewModel.transaccionesFiltradas.observe(viewLifecycleOwner) { lista -> adapter.updateList(lista) }
+
+        // Observador modificado para el Estado Vacío
+        viewModel.transaccionesFiltradas.observe(viewLifecycleOwner) { lista ->
+            adapter.updateList(lista)
+
+            val layoutEmptyState = view.findViewById<LinearLayout>(R.id.layoutEmptyState)
+
+            if (lista.isEmpty()) {
+                rvDesglose.visibility = View.GONE
+                layoutEmptyState.visibility = View.VISIBLE
+            } else {
+                rvDesglose.visibility = View.VISIBLE
+                layoutEmptyState.visibility = View.GONE
+            }
+        }
+
         viewModel.textoFecha.observe(viewLifecycleOwner) { texto -> tvFechaActual.text = texto }
 
         view.findViewById<View>(R.id.fabAgregarTransaccion).setOnClickListener { mostrarDialogoNuevaTransaccion() }
@@ -110,7 +130,7 @@ class TransaccionesFragment : Fragment() {
         viewModel.filtrarDatos(esGasto, periodoSeleccionado)
     }
 
-    // NUEVO: Abrir el calendario nativo
+    // Abrir el calendario nativo
     private fun mostrarSelectorFecha() {
         val calendario = viewModel.fechaBase
         val year = calendario.get(Calendar.YEAR)
@@ -124,98 +144,242 @@ class TransaccionesFragment : Fragment() {
     }
 
     private fun mostrarOpcionesTransaccion(transaccion: Transaction) {
-        val opciones = arrayOf("Editar", "Eliminar")
-        AlertDialog.Builder(requireContext())
-            .setTitle("Opciones de Movimiento")
-            .setItems(opciones) { _, posicion ->
-                if (posicion == 0) mostrarDialogoEditar(transaccion)
-                else viewModel.eliminarTransaccion(transaccion.id, tabLayout.selectedTabPosition == 0)
-            }.show()
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_opciones, null)
+        bottomSheetDialog.setContentView(view)
+
+        val btnEditar = view.findViewById<LinearLayout>(R.id.btnEditar)
+        val btnEliminar = view.findViewById<LinearLayout>(R.id.btnEliminar)
+
+        btnEditar.setOnClickListener {
+            bottomSheetDialog.dismiss()
+            mostrarDialogoEditar(transaccion)
+        }
+
+        btnEliminar.setOnClickListener {
+            bottomSheetDialog.dismiss()
+            val esGasto = tabLayout.selectedTabPosition == 0
+            viewModel.eliminarTransaccion(transaccion.id, esGasto)
+        }
+
+        bottomSheetDialog.show()
     }
 
     private fun mostrarDialogoEditar(t: Transaction) {
-        val builder = AlertDialog.Builder(requireContext()).setTitle("Editar Registro")
-        val layout = LinearLayout(requireContext()).apply { orientation = LinearLayout.VERTICAL; setPadding(50, 40, 50, 10) }
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_nueva_transaccion, null)
+        bottomSheetDialog.setContentView(view)
 
-        val inputMonto = EditText(requireContext()).apply {
-            hint = "Monto"
-            setText(t.amount.toString())
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        val tvTitulo = view.findViewById<TextView>(R.id.tvTituloDialogo)
+        val inputMonto = view.findViewById<EditText>(R.id.etMonto)
+        val spinner = view.findViewById<Spinner>(R.id.spinnerCategorias)
+        val inputDesc = view.findViewById<EditText>(R.id.etDescripcion)
+        val btnCancelar = view.findViewById<Button>(R.id.btnCancelar)
+        val btnGuardar = view.findViewById<Button>(R.id.btnGuardar)
+
+        tvTitulo.text = "Editar Registro"
+        inputMonto.setText(t.amount.toString())
+        inputDesc.setText(t.description ?: "")
+        btnGuardar.text = "Actualizar"
+
+        if (t.type == "INGRESO") {
+            val colorVerde = Color.parseColor("#43A047")
+            btnGuardar.backgroundTintList = android.content.res.ColorStateList.valueOf(colorVerde)
+            btnGuardar.setTextColor(Color.WHITE)
+            inputMonto.backgroundTintList = android.content.res.ColorStateList.valueOf(colorVerde)
+            inputDesc.backgroundTintList = android.content.res.ColorStateList.valueOf(colorVerde)
+        } else {
+            val colorDorado = Color.parseColor("#FBC02D")
+            btnGuardar.backgroundTintList = android.content.res.ColorStateList.valueOf(colorDorado)
+            btnGuardar.setTextColor(Color.parseColor("#121212"))
+            inputMonto.backgroundTintList = android.content.res.ColorStateList.valueOf(colorDorado)
+            inputDesc.backgroundTintList = android.content.res.ColorStateList.valueOf(colorDorado)
         }
-        layout.addView(inputMonto)
 
         val categoriasBD = viewModel.obtenerCategorias(t.type)
-        val nombres = categoriasBD.map { it.nombre }
-        val spinner = Spinner(requireContext()).apply {
-            adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, nombres)
-            t.category.let { index -> val pos = nombres.indexOf(index); if (pos >= 0) setSelection(pos) }
-        }
-        layout.addView(spinner)
+        val nombres = if (categoriasBD.isNotEmpty()) categoriasBD.map { it.nombre } else listOf("General")
 
-        val inputDesc = EditText(requireContext()).apply { hint = "Descripción"; setText(t.description) }
-        layout.addView(inputDesc)
-        builder.setView(layout)
-
-        builder.setPositiveButton("Actualizar") { _, _ ->
-            val monto = inputMonto.text.toString().toDoubleOrNull() ?: 0.0
-            val cat = spinner.selectedItem?.toString() ?: "General"
-            viewModel.editarTransaccion(t.id, monto, t.type, cat, t.date, inputDesc.text.toString())
+        val adapterSpinner = object : ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, nombres) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val v = super.getView(position, convertView, parent)
+                (v as TextView).setTextColor(Color.WHITE)
+                return v
+            }
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val v = super.getDropDownView(position, convertView, parent)
+                v.setBackgroundColor(Color.parseColor("#1E1E1E"))
+                (v as TextView).setTextColor(Color.WHITE)
+                return v
+            }
         }
-        builder.setNegativeButton("Cancelar", null)
-        builder.show()
+        adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapterSpinner
+
+        val indexCategoria = nombres.indexOf(t.category)
+        if (indexCategoria >= 0) {
+            spinner.setSelection(indexCategoria)
+        }
+
+        btnCancelar.setOnClickListener { bottomSheetDialog.dismiss() }
+
+        btnGuardar.setOnClickListener {
+            val montoText = inputMonto.text.toString()
+            if (montoText.isNotEmpty()) {
+                val montoNuevo = montoText.toDoubleOrNull() ?: 0.0
+                val catNueva = spinner.selectedItem?.toString() ?: "General"
+
+                viewModel.editarTransaccion(
+                    t.id,
+                    montoNuevo,
+                    t.type,
+                    catNueva,
+                    t.date,
+                    inputDesc.text.toString()
+                )
+                bottomSheetDialog.dismiss()
+            } else {
+                inputMonto.error = "Por favor ingresa un monto"
+            }
+        }
+
+        bottomSheetDialog.show()
     }
 
     private fun mostrarDialogoNuevaTransaccion() {
         val esGasto = tabLayout.selectedTabPosition == 0
         val tipoTransaccion = if (esGasto) "GASTO" else "INGRESO"
 
-        val builder = AlertDialog.Builder(requireContext()).setTitle("Registrar $tipoTransaccion")
-        val layout = LinearLayout(requireContext()).apply { orientation = LinearLayout.VERTICAL; setPadding(50, 40, 50, 10) }
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_nueva_transaccion, null)
+        bottomSheetDialog.setContentView(view)
 
-        val inputMonto = EditText(requireContext()).apply {
-            hint = "Monto"
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        val tvTitulo = view.findViewById<TextView>(R.id.tvTituloDialogo)
+        val inputMonto = view.findViewById<EditText>(R.id.etMonto)
+        val spinner = view.findViewById<Spinner>(R.id.spinnerCategorias)
+        val inputDesc = view.findViewById<EditText>(R.id.etDescripcion)
+        val btnCancelar = view.findViewById<Button>(R.id.btnCancelar)
+        val btnGuardar = view.findViewById<Button>(R.id.btnGuardar)
+
+        tvTitulo.text = "Registrar $tipoTransaccion"
+
+        if (!esGasto) {
+            val colorVerde = Color.parseColor("#43A047")
+            btnGuardar.backgroundTintList = android.content.res.ColorStateList.valueOf(colorVerde)
+            btnGuardar.setTextColor(Color.WHITE)
+            inputMonto.backgroundTintList = android.content.res.ColorStateList.valueOf(colorVerde)
+            inputDesc.backgroundTintList = android.content.res.ColorStateList.valueOf(colorVerde)
+        } else {
+            val colorDorado = Color.parseColor("#FBC02D")
+            btnGuardar.backgroundTintList = android.content.res.ColorStateList.valueOf(colorDorado)
+            btnGuardar.setTextColor(Color.parseColor("#121212"))
+            inputMonto.backgroundTintList = android.content.res.ColorStateList.valueOf(colorDorado)
+            inputDesc.backgroundTintList = android.content.res.ColorStateList.valueOf(colorDorado)
         }
-        layout.addView(inputMonto)
 
         val categoriasBD = viewModel.obtenerCategorias(tipoTransaccion)
         val nombres = if (categoriasBD.isNotEmpty()) categoriasBD.map { it.nombre } else listOf("General")
-        val spinner = Spinner(requireContext()).apply {
-            adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, nombres)
-        }
-        layout.addView(spinner)
 
-        val inputDesc = EditText(requireContext()).apply { hint = "Descripción" }
-        layout.addView(inputDesc)
-        builder.setView(layout)
-
-        builder.setPositiveButton("Guardar") { _, _ ->
-            val montoText = inputMonto.text.toString()
-            if (montoText.isNotEmpty()) {
-                // Ahora usamos la fechaBase que el usuario esté viendo en pantalla
-                val fechaRegistro = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(viewModel.fechaBase.time)
-                viewModel.agregarTransaccion(montoText.toDouble(), tipoTransaccion, spinner.selectedItem.toString(), fechaRegistro, inputDesc.text.toString())
+        val adapterSpinner = object : ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, nombres) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val v = super.getView(position, convertView, parent)
+                (v as TextView).setTextColor(Color.WHITE)
+                return v
+            }
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val v = super.getDropDownView(position, convertView, parent)
+                v.setBackgroundColor(Color.parseColor("#1E1E1E"))
+                (v as TextView).setTextColor(Color.WHITE)
+                return v
             }
         }
-        builder.setNegativeButton("Cancelar", null)
-        builder.show()
-    }
+        adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapterSpinner
 
-    private fun actualizarGrafico(lista: List<com.example.financetrack.data.model.CategoriaDesglose>) {
-        val entries = lista.map { PieEntry(it.monto.toFloat(), it.nombre) }
-        val dataSet = PieDataSet(entries, "").apply {
-            val colores = ArrayList<Int>()
-            for (c in ColorTemplate.MATERIAL_COLORS) colores.add(c)
-            for (c in ColorTemplate.PASTEL_COLORS) colores.add(c)
-            this.colors = colores
+        btnCancelar.setOnClickListener { bottomSheetDialog.dismiss() }
+
+        btnGuardar.setOnClickListener {
+            val montoText = inputMonto.text.toString()
+            if (montoText.isNotEmpty()) {
+                val fechaRegistro = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(viewModel.fechaBase.time)
+                viewModel.agregarTransaccion(
+                    montoText.toDouble(),
+                    tipoTransaccion,
+                    spinner.selectedItem?.toString() ?: "General",
+                    fechaRegistro,
+                    inputDesc.text.toString()
+                )
+                bottomSheetDialog.dismiss()
+            } else {
+                inputMonto.error = "Por favor ingresa un monto"
+            }
         }
 
+        bottomSheetDialog.show()
+    }
+
+    private fun actualizarGrafico(lista: List<CategoriaDesglose>) {
+        if (lista.isEmpty()) {
+            pieChart.visibility = View.GONE
+            return
+        }
+        pieChart.visibility = View.VISIBLE
+
+        val entries = ArrayList<PieEntry>()
+        val coloresCustomizados = ArrayList<Int>()
+        var sumaTotal = 0.0
+
+        for (item in lista) {
+            entries.add(PieEntry(item.monto.toFloat(), item.nombre))
+            sumaTotal += item.monto
+            try {
+                coloresCustomizados.add(Color.parseColor(item.colorHex))
+            } catch (e: Exception) {
+                coloresCustomizados.add(Color.GRAY)
+            }
+        }
+
+        totalActual = sumaTotal
+
+        val dataSet = PieDataSet(entries, "").apply {
+            colors = coloresCustomizados
+            setDrawValues(false)
+            sliceSpace = 2f
+            selectionShift = 5f
+        }
+
+        pieChart.centerText = "Total\n$ ${String.format(Locale.US, "%.2f", sumaTotal)}"
         pieChart.data = PieData(dataSet)
-        pieChart.centerText = "Total"
-        pieChart.setCenterTextColor(Color.WHITE)
-        pieChart.setHoleColor(Color.parseColor("#121212"))
-        pieChart.description.isEnabled = false
-        pieChart.legend.textColor = Color.WHITE
-        pieChart.invalidate()
+        pieChart.animateY(1000, com.github.mikephil.charting.animation.Easing.EaseInOutQuad)
+    }
+
+    private fun setupPieChart() {
+        pieChart.apply {
+            isDrawHoleEnabled = true
+            setHoleColor(android.graphics.Color.TRANSPARENT)
+            setCenterTextColor(android.graphics.Color.WHITE)
+            setCenterTextSize(18f)
+
+            holeRadius = 75f
+            transparentCircleRadius = 75f
+
+            description.isEnabled = false
+            legend.isEnabled = false
+            setDrawEntryLabels(false)
+            setExtraOffsets(5f, 5f, 5f, 5f)
+
+            setOnChartValueSelectedListener(object : com.github.mikephil.charting.listener.OnChartValueSelectedListener {
+                override fun onValueSelected(e: com.github.mikephil.charting.data.Entry?, h: com.github.mikephil.charting.highlight.Highlight?) {
+                    if (e is PieEntry) {
+                        val categoriaSeleccionada = e.label
+                        val montoSeleccionado = e.value
+                        centerText = "$categoriaSeleccionada\n$ ${String.format(Locale.US, "%.2f", montoSeleccionado)}"
+                    }
+                }
+
+                override fun onNothingSelected() {
+                    centerText = "Total\n$ ${String.format(Locale.US, "%.2f", totalActual)}"
+                }
+            })
+        }
     }
 }

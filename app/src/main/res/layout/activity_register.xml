@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#121212"
+    android:padding="32dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Crear Cuenta"
+        android:textColor="#FFFFFF"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="40dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textColorHint="#88FFFFFF"
+        app:boxBackgroundColor="#1E1E1E"
+        app:boxStrokeColor="#FFC107"
+        app:hintTextColor="#FFC107">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etRegEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Correo electrónico"
+            android:textColor="#FFFFFF"
+            android:inputType="textEmailAddress" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textColorHint="#88FFFFFF"
+        app:boxBackgroundColor="#1E1E1E"
+        app:boxStrokeColor="#FFC107"
+        app:hintTextColor="#FFC107"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="#88FFFFFF">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etRegPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contraseña"
+            android:textColor="#FFFFFF"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:textColorHint="#88FFFFFF"
+        app:boxBackgroundColor="#1E1E1E"
+        app:boxStrokeColor="#FFC107"
+        app:hintTextColor="#FFC107"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="#88FFFFFF">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etRegConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirmar Contraseña"
+            android:textColor="#FFFFFF"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Registrarse"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#121212"
+        android:backgroundTint="#FFC107"
+        app:cornerRadius="12dp"
+        android:layout_marginBottom="16dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¿Ya tienes cuenta? "
+            android:textColor="#88FFFFFF" />
+
+        <TextView
+            android:id="@+id/tvGoToLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Inicia Sesión"
+            android:textColor="#FFC107"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

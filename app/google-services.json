@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "513312843143",
+    "project_id": "financetrack-eac0b",
+    "storage_bucket": "financetrack-eac0b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513312843143:android:01bf43c18848df6e491f22",
+        "android_client_info": {
+          "package_name": "com.example.financetrack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZCEiTHV_PEwMC8pSMuYPuJcxSP9iXsNY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

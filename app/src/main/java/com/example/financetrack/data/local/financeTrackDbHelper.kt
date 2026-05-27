@@ -31,6 +31,7 @@ class FinanceTrackDbHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
                 type TEXT,
                 category TEXT,
                 date TEXT,
+                hora TEXT,
                 description TEXT
             )
         """.trimIndent()

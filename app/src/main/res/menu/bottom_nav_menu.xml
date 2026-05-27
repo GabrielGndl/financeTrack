@@ -15,5 +15,9 @@
         android:id="@+id/nav_categorias"
         android:icon="@android:drawable/ic_menu_manage"
         android:title="Categorías" />
+    <item
+        android:id="@+id/nav_perfil"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="Perfil" />
 
 </menu>

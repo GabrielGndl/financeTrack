@@ -6,5 +6,8 @@ data class Transaction(
     val type: String,
     val category: String,
     val date: String,
-    val description: String = ""
+    val hora: String = "00:00",
+    val description: String,
+    val colorCategory: String? = null,
+    val iconCategory: Int? = null
 )

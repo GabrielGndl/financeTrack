@@ -1,92 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#121212"
-    android:fillViewport="true">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#1E1E1E"
+    android:paddingTop="12dp"
+    android:paddingHorizontal="24dp"
+    android:paddingBottom="24dp">
 
-    <LinearLayout
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="24dp"
+        android:background="#666666" />
+
+    <TextView
+        android:id="@+id/tvTituloMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Crear Categoría"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="20dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_marginBottom="24dp"
+        android:textColorHint="#888888"
+        app:boxStrokeColor="#FBC02D"
+        app:hintTextColor="#FBC02D"
+        app:boxBackgroundColor="#121212">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="32dp">
-
-            <ImageButton
-                android:id="@+id/btnVolver"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_revert"
-                app:tint="#FFFFFF"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Crear categoría"
-                android:textColor="#FFFFFF"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:layout_marginStart="16dp"/>
-        </LinearLayout>
-
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etNombreCategoriaMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Nombre de la categoría"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#88FFFFFF"
-            android:textSize="18sp"
-            android:paddingBottom="12dp"
-            android:layout_marginBottom="32dp"
-            android:backgroundTint="#88FFFFFF"/> <TextView
+            android:inputType="textCapSentences"
+            android:textColor="#FFFFFF" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Símbolos"
-        android:textColor="#88FFFFFF"
-        android:layout_marginBottom="16dp"/>
+        android:text="Símbolo"
+        android:textColor="#888888"
+        android:textSize="14sp"
+        android:layout_marginBottom="12dp"/>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_marginBottom="24dp">
 
         <GridLayout
             android:id="@+id/gridSimbolos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="4"
-            android:layout_marginBottom="32dp"/>
+            android:columnCount="5"
+            android:alignmentMode="alignBounds"/>
 
-        <TextView
+    </androidx.core.widget.NestedScrollView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Color"
+        android:textColor="#888888"
+        android:textSize="14sp"
+        android:layout_marginBottom="12dp"/>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:layout_marginBottom="32dp">
+        <LinearLayout
+            android:id="@+id/contenedorColores"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Color"
-            android:textColor="#88FFFFFF"
-            android:layout_marginBottom="16dp"/>
+            android:orientation="horizontal"
+            android:paddingVertical="4dp"/>
+    </HorizontalScrollView>
 
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:layout_marginBottom="40dp">
-            <LinearLayout
-                android:id="@+id/contenedorColores"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"/>
-        </HorizontalScrollView>
+    <Button
+        android:id="@+id/btnAnadirCategoria"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Guardar Categoría"
+        android:textColor="#121212"
+        android:backgroundTint="#FBC02D"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"/>
 
-        <Button
-            android:id="@+id/btnAnadirCategoria"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Añadir"
-            android:textColor="#000000"
-            android:backgroundTint="#FFCA28"
-            android:layout_marginTop="16dp" />
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>

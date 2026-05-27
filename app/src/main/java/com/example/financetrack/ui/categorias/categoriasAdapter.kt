@@ -11,7 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.financetrack.R
 import com.example.financetrack.data.model.Category
 
-class CategoriasAdapter(private var lista: List<Category>) : RecyclerView.Adapter<CategoriasAdapter.ViewHolder>() {
+class CategoriasAdapter(
+    private var lista: List<Category>,
+    private val onItemClick: (Category) -> Unit // NUEVO: Escuchador de clics
+) : RecyclerView.Adapter<CategoriasAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvNombre: TextView = view.findViewById(R.id.tvNombreCategoria)
@@ -31,9 +34,10 @@ class CategoriasAdapter(private var lista: List<Category>) : RecyclerView.Adapte
         try {
             holder.cvContenedor.setCardBackgroundColor(Color.parseColor(item.color))
             holder.ivIcono.setImageResource(item.icono)
-        } catch (e: Exception) {
-            // Protección por si el color guardado está corrupto
-        }
+        } catch (e: Exception) {}
+
+        // NUEVO: Asignar el clic a la celda completa
+        holder.itemView.setOnClickListener { onItemClick(item) }
     }
 
     override fun getItemCount() = lista.size
